@@ -204,7 +204,7 @@ function loadAndDisplayData(selectedDate) {
                     source: 'crzEntries',
                     paint: {
                         'circle-radius': newRadiusExpression,
-                        'circle-color': '#000000',
+                        'circle-color': '#2360A5',
                         'circle-opacity': 0.7
                     }
                 });
@@ -222,7 +222,7 @@ function loadAndDisplayData(selectedDate) {
                     },
                     paint: {
                         'text-color': '#ffffff',
-                        'text-halo-color': '#000000',
+                        'text-halo-color': '#2360A5',
                         'text-halo-width': 1,
                     }
                 });
