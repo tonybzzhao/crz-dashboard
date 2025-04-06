@@ -320,6 +320,23 @@ function showCompositionPopup(lngLat, detectionGroup, tollDate) {
   });
 }
 
+const toggleBtn = document.getElementById('panelToggle');
+const panel = document.getElementById('controls');
+
+toggleBtn.addEventListener('click', () => {
+  const isHidden = panel.classList.toggle('hidden');
+
+  // Replace icon
+  toggleBtn.innerHTML = isHidden
+    ? '<i data-lucide="chevron-right"></i>'
+    : '<i data-lucide="chevron-left"></i>';
+
+  toggleBtn.title = isHidden ? 'Show panel' : 'Hide panel';
+
+  // Re-render the Lucide icon
+  lucide.createIcons();
+});
+
 // Update map when the slider value changes
 document.getElementById('dateSlider').addEventListener('input', function () {
     const index = parseInt(this.value, 10);

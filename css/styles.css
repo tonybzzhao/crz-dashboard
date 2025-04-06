@@ -16,13 +16,35 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
+  width: 280px;
   background: white;
   padding: 15px;
-  z-index: 1;
+  z-index: 2;
   border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  max-width: 300px;
-  width: 250px;       /* Fixed width for a vertical shape */
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+#controls.hidden {
+  transform: translateX(-110%);
+}
+
+.panel-toggle {
+  position: absolute;
+  top: 10px;
+  left: 325px; /* 280 panel + 10 margin */
+  z-index: 3;
+  background: white;
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  padding: 4px 4px;
+  cursor: pointer;
+  transition: left 0.3s ease-in-out;
+}
+
+#controls.hidden + .panel-toggle {
+  left: 10px;
 }
 
 #controls h1 {

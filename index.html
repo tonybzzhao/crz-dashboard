@@ -3,6 +3,7 @@
 
 <head>
     <script src="https://cdn.jsdelivr.net/npm/wellknown@0.5.0/wellknown.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <meta charset="utf-8">
     <title>NYC Congestion Pricing Dashboard</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -16,26 +17,29 @@
 
 <body>
     <div id="map"></div>
-    <!-- Controls Container -->
+  
+    <!-- Control Panel -->
     <div id="controls">
-        <!-- Title -->
-        <h1>NYC Congestion Pricing Dashboard</h1>
-        <!-- Description -->
-        <p>This dashboard visualizes vehicle entries into NYC's Congestion Relief Zone. Use the controls to see daily vehicle entries. Click on each detection group to see compositions of vehicle entries.</p>
-        <hr class="divider">
-        <!-- Date display -->
-        <label for="dateSlider">Select Date:</label>
-        <input type="range" id="dateSlider" min="0" max="0" step="1" value="0">
-        <span id="currentDate">Loading...</span>
+      <h1>NYC Congestion Pricing Dashboard</h1>
+      <p>This dashboard visualizes vehicle entries into NYC's Congestion Relief Zone. Use the controls to see daily
+        vehicle entries. Click on each detection group to see compositions of vehicle entries.</p>
+      <hr class="divider">
+      <label for="dateSlider">Select Date:</label>
+      <input type="range" id="dateSlider" min="0" max="0" step="1" value="0">
+      <span id="currentDate">Loading...</span>
     </div>
-    <!-- Mapbox GL JS -->
+  
+    <!-- Toggle Button (AFTER the panel) -->
+    <button id="panelToggle" class="panel-toggle" title="Hide panel">
+      <i data-lucide="chevron-left"></i>
+    </button>
+  
+    <!-- Scripts -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
-    <!-- Papa Parse for CSV parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <!-- Chart.js for popup charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom JS -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/scripts.js"></script>
-</body>
+  </body>
 
 </html>
