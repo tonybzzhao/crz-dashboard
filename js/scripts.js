@@ -12,90 +12,90 @@ const map = new mapboxgl.Map({
 function addCRZOutline() {
     // Fetch the rows.json file
     fetch('data/rows.json')
-      .then(response => response.json())
-      .then(jsonData => {
-        // Check if data exists
-        if (!jsonData.data || jsonData.data.length === 0) {
-          console.error("No polygon data found in rows.json.");
-          return;
-        }
-        
-        // Extract the polygon WKT string from the first row (assuming it's in index 8)
-        const wktString = jsonData.data[0][8];
-        console.log("WKT string:", wktString);
-        
-        // Convert the WKT string to a GeoJSON geometry using wellknown
-        const wk = window.wellknown;
-        if (!wk) {
-          console.error("wellknown library is not loaded!");
-          return;
-        }
-        const geojsonGeometry = wk.parse(wktString);
-        console.log("Parsed GeoJSON geometry:", geojsonGeometry);
-        
-        // Check if the parsed geometry is valid
-        if (!geojsonGeometry || !geojsonGeometry.type || !geojsonGeometry.coordinates) {
-          console.error("Parsing error: Invalid GeoJSON geometry.");
-          return;
-        }
-        
-        // Wrap the geometry in a GeoJSON Feature
-        const geojsonFeature = {
-          type: "Feature",
-          properties: {},
-          geometry: geojsonGeometry
-        };
-        
-        // Add the CRZ polygon as a new source
-        if (map.getSource('crzZone')) {
-          map.getSource('crzZone').setData(geojsonFeature);
-        } else {
-          map.addSource('crzZone', {
-            type: 'geojson',
-            data: geojsonFeature
-          });
-          
-          // Add a fill layer (semi-transparent) for the polygon
-          map.addLayer({
-            id: 'crzZoneFill',
-            type: 'fill',
-            source: 'crzZone',
-            layout: {},
-            paint: {
-              'fill-color': '#FCCC0A',
-              'fill-opacity': 0.2
+        .then(response => response.json())
+        .then(jsonData => {
+            // Check if data exists
+            if (!jsonData.data || jsonData.data.length === 0) {
+                console.error("No polygon data found in rows.json.");
+                return;
             }
-          });
-          
-          // Add a line layer for the polygon outline
-          map.addLayer({
-            id: 'crzZoneOutline',
-            type: 'line',
-            source: 'crzZone',
-            layout: {},
-            paint: {
-              'line-color': '#FCCC0A',
-              'line-width': 3
+
+            // Extract the polygon WKT string from the first row (assuming it's in index 8)
+            const wktString = jsonData.data[0][8];
+            console.log("WKT string:", wktString);
+
+            // Convert the WKT string to a GeoJSON geometry using wellknown
+            const wk = window.wellknown;
+            if (!wk) {
+                console.error("wellknown library is not loaded!");
+                return;
             }
-          });
-        }
-        
-        // Optionally, fit the map view to the polygon's bounding box using turf.js
-        if (typeof turf !== 'undefined') {
-          const bbox = turf.bbox(geojsonFeature);
-          console.log("Polygon bounding box:", bbox);
-          map.fitBounds(bbox, { padding: 20 });
-        }
-      })
-      .catch(err => console.error("Error loading CRZ rows JSON:", err));
-  }
-  
-  // Call addCRZOutline inside the map load event
-  map.on('load', function() {
+            const geojsonGeometry = wk.parse(wktString);
+            console.log("Parsed GeoJSON geometry:", geojsonGeometry);
+
+            // Check if the parsed geometry is valid
+            if (!geojsonGeometry || !geojsonGeometry.type || !geojsonGeometry.coordinates) {
+                console.error("Parsing error: Invalid GeoJSON geometry.");
+                return;
+            }
+
+            // Wrap the geometry in a GeoJSON Feature
+            const geojsonFeature = {
+                type: "Feature",
+                properties: {},
+                geometry: geojsonGeometry
+            };
+
+            // Add the CRZ polygon as a new source
+            if (map.getSource('crzZone')) {
+                map.getSource('crzZone').setData(geojsonFeature);
+            } else {
+                map.addSource('crzZone', {
+                    type: 'geojson',
+                    data: geojsonFeature
+                });
+
+                // Add a fill layer (semi-transparent) for the polygon
+                map.addLayer({
+                    id: 'crzZoneFill',
+                    type: 'fill',
+                    source: 'crzZone',
+                    layout: {},
+                    paint: {
+                        'fill-color': '#FCCC0A',
+                        'fill-opacity': 0.2
+                    }
+                });
+
+                // Add a line layer for the polygon outline
+                map.addLayer({
+                    id: 'crzZoneOutline',
+                    type: 'line',
+                    source: 'crzZone',
+                    layout: {},
+                    paint: {
+                        'line-color': '#FCCC0A',
+                        'line-width': 3
+                    }
+                });
+            }
+
+            // Optionally, fit the map view to the polygon's bounding box using turf.js
+            if (typeof turf !== 'undefined') {
+                const bbox = turf.bbox(geojsonFeature);
+                console.log("Polygon bounding box:", bbox);
+                map.fitBounds(bbox, { padding: 20 });
+            }
+        })
+        .catch(err => console.error("Error loading CRZ rows JSON:", err));
+}
+
+// Call addCRZOutline inside the map load event
+map.on('load', function () {
     addCRZOutline();
-    
+
     // (Your other initialization code can follow here)
-  });
+});
 
 // Lookup table for Detection Group coordinates
 const detectionGroupCoordinates = {
@@ -254,37 +254,70 @@ function showCompositionPopup(lngLat, detectionGroup, tollDate) {
     const counts = filtered.map(d => parseInt(d["CRZ Entries"], 10));
 
     const popupContent = document.createElement('div');
-    popupContent.style.width = '400px';
-    popupContent.style.height = '400px';
+    popupContent.style.width = '230px';
+    popupContent.style.padding = '5px';
+    popupContent.style.fontFamily = 'Roboto Mono, monospace';
+    popupContent.innerHTML = `
+    <div style="text-align: center; margin-bottom: 10px;">
+      <strong style="font-size: 16px;">${detectionGroup}</strong><br/>
+      <span style="font-size: 14px;">${tollDate}</span>
+    </div>
+  
+    <!--- HTML Legend -->
+    <div style="font-size: 12px; margin-bottom: 12px; line-height: 1.4;">
+      <div><span style="display: inline-block; width: 12px; height: 12px; background:#003f5c; margin-right: 6px;"></span>1 – Cars, Pickups and Vans</div>
+      <div><span style="display: inline-block; width: 12px; height: 12px; background:#444e86; margin-right: 6px;"></span>2 – Single-Unit Trucks</div>
+      <div><span style="display: inline-block; width: 12px; height: 12px; background:#955196; margin-right: 6px;"></span>3 – Multi-Unit Trucks</div>
+      <div><span style="display: inline-block; width: 12px; height: 12px; background:#dd5182; margin-right: 6px;"></span>4 – Buses</div>
+      <div><span style="display: inline-block; width: 12px; height: 12px; background:#ff6e54; margin-right: 6px;"></span>5 – Motorcycles</div>
+      <div><span style="display: inline-block; width: 12px; height: 12px; background:#ffa600; margin-right: 6px;"></span>TLC Taxi/FHV</div>
+    </div>
+  `;
 
-    const canvas = document.createElement('canvas');
-    canvas.id = 'compositionChart';
-    popupContent.appendChild(canvas);
+  const canvas = document.createElement('canvas');
 
-    new mapboxgl.Popup()
-        .setLngLat(lngLat)
-        .setDOMContent(popupContent)
-        .addTo(map);
-
-    new Chart(canvas.getContext('2d'), {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: counts,
-                backgroundColor: ['#FF6894', '#36A2EB', '#FFCE56', '#8BC34A', '#E91E03', '#800080']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: `Composition for ${detectionGroup} on ${tollDate}`
-                }
-            }
+  // Set actual rendering size (what Chart.js will use)
+  canvas.width = 150;
+  canvas.height = 150;
+  
+  // Optional: for layout control in the DOM
+  canvas.style.display = 'block';  // avoid inline spacing
+  canvas.style.margin = '0 auto';  // center horizontally
+  
+  popupContent.appendChild(canvas);
+  
+  // Create and show popup first
+  new mapboxgl.Popup()
+    .setLngLat(lngLat)
+    .setDOMContent(popupContent)
+    .addTo(map);
+  
+  // Then defer chart creation to next animation frame
+  requestAnimationFrame(() => {
+    if (window.currentPopupChart) {
+      window.currentPopupChart.destroy();
+    }
+  
+    const ctx = canvas.getContext('2d');
+    window.currentPopupChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: counts,
+          backgroundColor: ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600']
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: false }
         }
+      }
     });
+  });
 }
 
 // Update map when the slider value changes

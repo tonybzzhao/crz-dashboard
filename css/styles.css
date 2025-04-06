@@ -22,8 +22,7 @@ body {
   border-radius: 4px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   max-width: 300px;
-  width: 200px;       /* Fixed width for a vertical shape */
-  min-height: 300px;
+  width: 250px;       /* Fixed width for a vertical shape */
 }
 
 #controls h1 {
@@ -54,8 +53,8 @@ body {
 
 /* Increase popup container size */
 .mapboxgl-popup-content {
-  width: 400px !important;
-  height: 400px !important;
+  width: 230px !important;
+  height: 100% !important;
   padding: 10px;
   font-family: 'Roboto Mono', monospace;
 }
