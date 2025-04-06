@@ -22,6 +22,8 @@ body {
   border-radius: 4px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   max-width: 300px;
+  width: 200px;       /* Fixed width for a vertical shape */
+  min-height: 300px;
 }
 
 #controls h1 {
@@ -36,6 +38,13 @@ body {
   font-size: 14px;
   text-align: left;
   font-weight: regular;
+}
+
+.divider {
+  border: 0;
+  height: 1.5px;
+  background: #ccc;   /* Adjust color as needed */
+  margin: 20px 0;     /* Adjust spacing */
 }
 
 #dateSlider {
