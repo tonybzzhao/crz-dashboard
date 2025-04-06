@@ -1,0 +1,312 @@
+// Set your Mapbox access token
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2Fpc2VyYm9ibyIsImEiOiJjbGlkbGU0anQwMG5uM2tvY2lpc3hyaDloIn0.y4yHlSPNI_fn_pjERNk8XA';
+
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/kaiserbobo/cm94zpp13007901qt3mttcdlq',
+    center: [-73.935242, 40.730610], // NYC center
+    zoom: 11
+});
+
+// Function to add the CRZ outline from rows.json
+function addCRZOutline() {
+    // Fetch the rows.json file
+    fetch('data/rows.json')
+      .then(response => response.json())
+      .then(jsonData => {
+        // Check if data exists
+        if (!jsonData.data || jsonData.data.length === 0) {
+          console.error("No polygon data found in rows.json.");
+          return;
+        }
+        
+        // Extract the polygon WKT string from the first row (assuming it's in index 8)
+        const wktString = jsonData.data[0][8];
+        console.log("WKT string:", wktString);
+        
+        // Convert the WKT string to a GeoJSON geometry using wellknown
+        const wk = window.wellknown;
+        if (!wk) {
+          console.error("wellknown library is not loaded!");
+          return;
+        }
+        const geojsonGeometry = wk.parse(wktString);
+        console.log("Parsed GeoJSON geometry:", geojsonGeometry);
+        
+        // Check if the parsed geometry is valid
+        if (!geojsonGeometry || !geojsonGeometry.type || !geojsonGeometry.coordinates) {
+          console.error("Parsing error: Invalid GeoJSON geometry.");
+          return;
+        }
+        
+        // Wrap the geometry in a GeoJSON Feature
+        const geojsonFeature = {
+          type: "Feature",
+          properties: {},
+          geometry: geojsonGeometry
+        };
+        
+        // Add the CRZ polygon as a new source
+        if (map.getSource('crzZone')) {
+          map.getSource('crzZone').setData(geojsonFeature);
+        } else {
+          map.addSource('crzZone', {
+            type: 'geojson',
+            data: geojsonFeature
+          });
+          
+          // Add a fill layer (semi-transparent) for the polygon
+          map.addLayer({
+            id: 'crzZoneFill',
+            type: 'fill',
+            source: 'crzZone',
+            layout: {},
+            paint: {
+              'fill-color': '#FCCC0A',
+              'fill-opacity': 0.2
+            }
+          });
+          
+          // Add a line layer for the polygon outline
+          map.addLayer({
+            id: 'crzZoneOutline',
+            type: 'line',
+            source: 'crzZone',
+            layout: {},
+            paint: {
+              'line-color': '#FCCC0A',
+              'line-width': 3
+            }
+          });
+        }
+        
+        // Optionally, fit the map view to the polygon's bounding box using turf.js
+        if (typeof turf !== 'undefined') {
+          const bbox = turf.bbox(geojsonFeature);
+          console.log("Polygon bounding box:", bbox);
+          map.fitBounds(bbox, { padding: 20 });
+        }
+      })
+      .catch(err => console.error("Error loading CRZ rows JSON:", err));
+  }
+  
+  // Call addCRZOutline inside the map load event
+  map.on('load', function() {
+    addCRZOutline();
+    
+    // (Your other initialization code can follow here)
+  });
+
+// Lookup table for Detection Group coordinates
+const detectionGroupCoordinates = {
+    "Brooklyn Bridge": [-73.9969, 40.7061],
+    "East 60th St": [-73.9661, 40.7619],
+    "FDR Drive at 60th St": [-73.95866, 40.75870],
+    "Holland Tunnel": [-74.01104, 40.72600],
+    "Hugh L. Carey Tunnel": [-74.01558, 40.70188],
+    "Lincoln Tunnel": [-74.00289, 40.75989],
+    "Manhattan Bridge": [-73.9905, 40.7070],
+    "Queens Midtown Tunnel": [-73.966951, 40.74736],
+    "Queensboro Bridge": [-73.95544, 40.75729],
+    "West 60th St": [-73.98212, 40.76892],
+    "West Side Highway at 60th St": [-73.99302, 40.77344],
+    "Williamsburg Bridge": [-73.972933, 40.71381],
+};
+
+// Global arrays for available dates and composition data
+let availableDates = [];
+let compositionData = [];
+
+// Convert JSON records to GeoJSON
+function recordsToGeoJSON(records) {
+    const features = records.reduce((acc, row) => {
+        const detectionGroup = row["Detection Group"];
+        const coordinates = detectionGroupCoordinates[detectionGroup];
+        if (coordinates) {
+            acc.push({
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: coordinates
+                },
+                properties: {
+                    tollDate: row["Toll Date"],
+                    crzEntries: parseInt(row["CRZ Entries"], 10),
+                    detectionGroup: detectionGroup
+                }
+            });
+        }
+        return acc;
+    }, []);
+    return {
+        type: "FeatureCollection",
+        features: features
+    };
+}
+
+// Load composition data from JSON
+function loadCompositionData() {
+    fetch('data/aggregated_composition.json')
+        .then(response => response.json())
+        .then(data => {
+            compositionData = data;
+        })
+        .catch(err => console.error("Error loading composition JSON:", err));
+}
+
+// Load aggregated entries JSON and update the map for a given selected date
+function loadAndDisplayData(selectedDate) {
+    fetch('data/aggregated_entries.json')
+        .then(response => response.json())
+        .then(data => {
+            // On first load, extract unique dates if not already populated
+            if (availableDates.length === 0) {
+                const dateSet = new Set(data.map(d => d["Toll Date"]));
+                availableDates = Array.from(dateSet).sort();
+                const dateSlider = document.getElementById('dateSlider');
+                dateSlider.max = availableDates.length - 1;
+                document.getElementById('currentDate').textContent = availableDates[0];
+            }
+
+            let geojson = recordsToGeoJSON(data);
+            // Filter features for the selected date
+            geojson.features = geojson.features.filter(feature => feature.properties.tollDate === selectedDate);
+
+            // Calculate maximum CRZ Entries from filtered features
+            let maxVal = 0;
+            geojson.features.forEach(feature => {
+                const entries = feature.properties.crzEntries;
+                if (entries > maxVal) {
+                    maxVal = entries;
+                }
+            });
+
+            // Define a new interpolation expression for circle radius.
+            // If maxVal is low (or constant), the circle size won't change much.
+            // Adjust the numbers as needed; here, 0 -> 5px, maxVal -> 30px.
+            const newRadiusExpression = [
+                'interpolate',
+                ['linear'],
+                ['get', 'crzEntries'],
+                0, 1,
+                100000, 50
+            ];
+
+            // Update or add the Mapbox source and layers
+            if (map.getSource('crzEntries')) {
+                map.getSource('crzEntries').setData(geojson);
+                map.setPaintProperty('crzEntriesLayer', 'circle-radius', newRadiusExpression);
+            } else {
+                map.addSource('crzEntries', { type: 'geojson', data: geojson });
+                map.addLayer({
+                    id: 'crzEntriesLayer',
+                    type: 'circle',
+                    source: 'crzEntries',
+                    paint: {
+                        'circle-radius': newRadiusExpression,
+                        'circle-color': '#000000',
+                        'circle-opacity': 0.7
+                    }
+                });
+                // Add a symbol layer for the dynamic label above each circle
+                map.addLayer({
+                    id: 'crzEntriesLabels',
+                    type: 'symbol',
+                    source: 'crzEntries',
+                    layout: {
+                        'text-field': ['to-string', ['get', 'crzEntries']],
+                        'text-size': 18,
+                        'text-offset': [0, 0],
+                        'text-anchor': 'center',
+                        'text-font': ['Roboto Mono Bold', 'Arial Unicode MS Regular']
+                    },
+                    paint: {
+                        'text-color': '#ffffff',
+                        'text-halo-color': '#000000',
+                        'text-halo-width': 1,
+                    }
+                });
+                map.on('click', 'crzEntriesLayer', function (e) {
+                    const feature = e.features[0];
+                    const detectionGroup = feature.properties.detectionGroup;
+                    const tollDate = feature.properties.tollDate;
+                    showCompositionPopup(e.lngLat, detectionGroup, tollDate);
+                });
+                map.on('mouseenter', 'crzEntriesLayer', function () {
+                    map.getCanvas().style.cursor = 'pointer';
+                });
+                map.on('mouseleave', 'crzEntriesLayer', function () {
+                    map.getCanvas().style.cursor = '';
+                });
+            }
+        })
+        .catch(err => console.error("Error loading aggregated entries JSON:", err));
+}
+
+// Show a popup with a Chart.js chart for vehicle composition
+Chart.defaults.font.family = 'Roboto Mono, monospace';
+function showCompositionPopup(lngLat, detectionGroup, tollDate) {
+    const filtered = compositionData.filter(d =>
+        d["Toll Date"] === tollDate && d["Detection Group"] === detectionGroup
+    );
+
+    const labels = filtered.map(d => d["Vehicle Class"]);
+    const counts = filtered.map(d => parseInt(d["CRZ Entries"], 10));
+
+    const popupContent = document.createElement('div');
+    popupContent.style.width = '400px';
+    popupContent.style.height = '400px';
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'compositionChart';
+    popupContent.appendChild(canvas);
+
+    new mapboxgl.Popup()
+        .setLngLat(lngLat)
+        .setDOMContent(popupContent)
+        .addTo(map);
+
+    new Chart(canvas.getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: ['#FF6894', '#36A2EB', '#FFCE56', '#8BC34A', '#E91E03', '#800080']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Composition for ${detectionGroup} on ${tollDate}`
+                }
+            }
+        }
+    });
+}
+
+// Update map when the slider value changes
+document.getElementById('dateSlider').addEventListener('input', function () {
+    const index = parseInt(this.value, 10);
+    const selectedDate = availableDates[index];
+    document.getElementById('currentDate').textContent = selectedDate;
+    loadAndDisplayData(selectedDate);
+});
+
+// On map load, load composition data and initialize available dates from aggregated entries JSON
+map.on('load', function () {
+    loadCompositionData();
+    fetch('data/aggregated_entries.json')
+        .then(response => response.json())
+        .then(data => {
+            const dateSet = new Set(data.map(d => d["Toll Date"]));
+            availableDates = Array.from(dateSet).sort();
+            const dateSlider = document.getElementById('dateSlider');
+            dateSlider.max = availableDates.length - 1;
+            document.getElementById('currentDate').textContent = availableDates[0];
+            loadAndDisplayData(availableDates[0]);
+        })
+        .catch(err => console.error("Error initializing dates:", err));
+});
