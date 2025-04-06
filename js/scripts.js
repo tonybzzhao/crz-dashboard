@@ -274,50 +274,50 @@ function showCompositionPopup(lngLat, detectionGroup, tollDate) {
     </div>
   `;
 
-  const canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
 
-  // Set actual rendering size (what Chart.js will use)
-  canvas.width = 150;
-  canvas.height = 150;
-  
-  // Optional: for layout control in the DOM
-  canvas.style.display = 'block';  // avoid inline spacing
-  canvas.style.margin = '0 auto';  // center horizontally
-  
-  popupContent.appendChild(canvas);
-  
-  // Create and show popup first
-  new mapboxgl.Popup()
-    .setLngLat(lngLat)
-    .setDOMContent(popupContent)
-    .addTo(map);
-  
-  // Then defer chart creation to next animation frame
-  requestAnimationFrame(() => {
-    if (window.currentPopupChart) {
-      window.currentPopupChart.destroy();
-    }
-  
-    const ctx = canvas.getContext('2d');
-    window.currentPopupChart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: counts,
-          backgroundColor: ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600']
-        }]
-      },
-      options: {
-        responsive: false,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: { display: false }
+    // Set actual rendering size (what Chart.js will use)
+    canvas.width = 150;
+    canvas.height = 150;
+
+    // Optional: for layout control in the DOM
+    canvas.style.display = 'block';  // avoid inline spacing
+    canvas.style.margin = '0 auto';  // center horizontally
+
+    popupContent.appendChild(canvas);
+
+    // Create and show popup first
+    new mapboxgl.Popup()
+        .setLngLat(lngLat)
+        .setDOMContent(popupContent)
+        .addTo(map);
+
+    // Then defer chart creation to next animation frame
+    requestAnimationFrame(() => {
+        if (window.currentPopupChart) {
+            window.currentPopupChart.destroy();
         }
-      }
+
+        const ctx = canvas.getContext('2d');
+        window.currentPopupChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: ['#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                }
+            }
+        });
     });
-  });
 }
 
 const toggleBtn = document.getElementById('panelToggle');
@@ -326,15 +326,14 @@ const panel = document.getElementById('controls');
 toggleBtn.addEventListener('click', () => {
   const isHidden = panel.classList.toggle('hidden');
 
-  // Replace icon
   toggleBtn.innerHTML = isHidden
     ? '<i data-lucide="chevron-right"></i>'
     : '<i data-lucide="chevron-left"></i>';
 
   toggleBtn.title = isHidden ? 'Show panel' : 'Hide panel';
+  toggleBtn.style.left = isHidden ? '10px' : '325px';
 
-  // Re-render the Lucide icon
-  lucide.createIcons();
+  lucide.createIcons(); // re-render chevron icon
 });
 
 // Update map when the slider value changes

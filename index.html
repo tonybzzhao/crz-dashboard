@@ -17,29 +17,35 @@
 
 <body>
     <div id="map"></div>
-  
+
     <!-- Control Panel -->
     <div id="controls">
-      <h1>NYC Congestion Pricing Dashboard</h1>
-      <p>This dashboard visualizes vehicle entries into NYC's Congestion Relief Zone. Use the controls to see daily
-        vehicle entries. Click on each detection group to see compositions of vehicle entries.</p>
-      <hr class="divider">
-      <label for="dateSlider">Select Date:</label>
-      <input type="range" id="dateSlider" min="0" max="0" step="1" value="0">
-      <span id="currentDate">Loading...</span>
+        <h1>NYC Congestion Pricing Dashboard</h1>
+        <p>This dashboard visualizes vehicle entries into NYC's Congestion Relief Zone. Use the controls to see daily
+            vehicle entries. Click on each detection group to see compositions of vehicle entries.</p>
+        <hr class="divider">
+        <label for="dateSlider">Select Date:</label>
+        <input type="range" id="dateSlider" min="0" max="0" step="1" value="0">
+        <span id="currentDate">Loading...</span>
     </div>
-  
-    <!-- Toggle Button (AFTER the panel) -->
+
     <button id="panelToggle" class="panel-toggle" title="Hide panel">
-      <i data-lucide="chevron-left"></i>
+        <i data-lucide="chevron-left"></i>
     </button>
-  
+
     <!-- Scripts -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="js/scripts.js"></script>
-  </body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          lucide.createIcons();
+        });
+      </script>
+      </body>
+      
+</body>
 
 </html>
