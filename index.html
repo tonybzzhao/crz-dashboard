@@ -21,12 +21,20 @@
     <!-- Control Panel -->
     <div id="controls">
         <h1>NYC Congestion Pricing Dashboard</h1>
-        <p>This dashboard visualizes vehicle entries into NYC's Congestion Relief Zone. Use the controls to see daily
-            vehicle entries. Click on each detection group to see compositions of vehicle entries.</p>
+        <p>This dashboard visualizes NYC's congestion pricing program. Use the control to see daily
+            vehicle entries and air quality data. Click on each detection group to see compositions of vehicle entries.</p>
         <hr class="divider">
-        <label for="dateSlider">Select Date:</label>
+        <label for="dateSlider">Select Date</label>
         <input type="range" id="dateSlider" min="0" max="0" step="1" value="0">
         <span id="currentDate">Loading...</span>
+        <hr class="divider">
+        <!-- Air Quality Meters -->
+        <div id="AQIMeters" style="margin-top: 10px;">
+            <label style="display:block; margin-bottom:5px;">Air Quality</label>
+            <div class="aqi-meter" id="pm25Meter"></div>
+            <div class="aqi-meter" id="no2Meter"></div>
+            <div class="aqi-meter" id="o3Meter"></div>
+        </div>
     </div>
 
     <button id="panelToggle" class="panel-toggle" title="Hide panel">
@@ -41,11 +49,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-          lucide.createIcons();
+            lucide.createIcons();
         });
-      </script>
-      </body>
-      
+    </script>
 </body>
 
 </html>

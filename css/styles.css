@@ -16,7 +16,7 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: 280px;
+  width: 250px;
   background: white;
   padding: 15px;
   z-index: 2;
@@ -32,7 +32,7 @@ body {
 .panel-toggle {
   position: absolute;
   top: 10px;
-  left: 325px; /* 280 panel + 10 margin */
+  left: calc(25px + 250px + 25px); /* panel left + panel width + margin */
   z-index: 3;
   background: white;
   border: none;
@@ -71,6 +71,23 @@ body {
 #dateSlider {
   width: 100%;
   margin: 10px 0;
+}
+
+.aqi-meter {
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.aqi-meter-label {
+  margin-bottom: 2px;
+}
+
+.aqi-meter-bar {
+  height: 12px;
+  border-radius: 3px;
+  margin-bottom: 4px;
+  transition: background-color 0.3s ease;
 }
 
 /* Increase popup container size */

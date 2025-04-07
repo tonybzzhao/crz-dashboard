@@ -8,6 +8,56 @@ const map = new mapboxgl.Map({
     zoom: 11
 });
 
+let airQualityData = [];
+let isAQILoaded = false;
+
+fetch('data/air-quality.json')
+  .then(response => response.json())
+  .then(data => {
+    airQualityData = data;
+    isAQILoaded = true;
+
+    // If date is already set, update meters now
+    const selectedDate = document.getElementById('currentDate').textContent;
+    if (selectedDate && availableDates.includes(selectedDate)) {
+      updateAQIMeters(selectedDate);
+    }
+  })
+  .catch(err => console.error("Error loading air quality JSON:", err));
+
+function getAQIColor(aqi) {
+    if (aqi <= 50) return '#00e400';       // Good
+    if (aqi <= 100) return '#ffff00';      // Moderate
+    if (aqi <= 150) return '#ff7e00';      // Unhealthy for Sensitive Groups
+    if (aqi <= 200) return '#ff0000';      // Unhealthy
+    if (aqi <= 300) return '#8f3f97';      // Very Unhealthy
+    return '#7e0023';                      // Hazardous
+}
+
+function updateAQIMeters(dateStr) {
+    if (!isAQILoaded || !airQualityData.length) return;
+
+    const aq = airQualityData.find(d => d.date === dateStr);
+    if (!aq) return;
+
+    const meters = [
+        { id: 'pm25Meter', label: 'PM2.5', value: aq.pm25 },
+        { id: 'no2Meter', label: 'NO₂', value: aq.no2 },
+        { id: 'o3Meter', label: 'O₃', value: aq.o3 }
+    ];
+
+    meters.forEach(({ id, label, value }) => {
+        const container = document.getElementById(id);
+        if (container) {
+            const color = getAQIColor(value);
+            container.innerHTML = `
+                <div class="aqi-meter-label">${label}: ${value}</div>
+                <div class="aqi-meter-bar" style="width: ${Math.min(value, 300) / 1}%; background-color: ${color};"></div>
+            `;
+        }
+    });
+}
+
 // Function to add the CRZ outline from rows.json
 function addCRZOutline() {
     // Fetch the rows.json file
@@ -324,16 +374,16 @@ const toggleBtn = document.getElementById('panelToggle');
 const panel = document.getElementById('controls');
 
 toggleBtn.addEventListener('click', () => {
-  const isHidden = panel.classList.toggle('hidden');
+    const isHidden = panel.classList.toggle('hidden');
 
-  toggleBtn.innerHTML = isHidden
-    ? '<i data-lucide="chevron-right"></i>'
-    : '<i data-lucide="chevron-left"></i>';
+    toggleBtn.innerHTML = isHidden
+        ? '<i data-lucide="chevron-right"></i>'
+        : '<i data-lucide="chevron-left"></i>';
 
-  toggleBtn.title = isHidden ? 'Show panel' : 'Hide panel';
-  toggleBtn.style.left = isHidden ? '10px' : '325px';
+    toggleBtn.title = isHidden ? 'Show panel' : 'Hide panel';
+    toggleBtn.style.left = isHidden ? '10px' : '300px';
 
-  lucide.createIcons(); // re-render chevron icon
+    lucide.createIcons(); // re-render chevron icon
 });
 
 // Update map when the slider value changes
@@ -342,6 +392,7 @@ document.getElementById('dateSlider').addEventListener('input', function () {
     const selectedDate = availableDates[index];
     document.getElementById('currentDate').textContent = selectedDate;
     loadAndDisplayData(selectedDate);
+    updateAQIMeters(selectedDate);
 });
 
 // On map load, load composition data and initialize available dates from aggregated entries JSON
