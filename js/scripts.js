@@ -403,10 +403,6 @@ map.on('load', function () {
             dateSlider.max = availableDates.length - 1;
             document.getElementById('currentDate').textContent = availableDates[0];
 
-            // Disable map interactions
-            map.scrollZoom.disable();
-            map.dragPan.disable();
-            map.doubleClickZoom.disable();
 
             loadAndDisplayData(availableDates[0]);
             // If AQI data is loaded, update meters for the initial date

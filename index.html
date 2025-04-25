@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <div id="map" style="pointer-events: none;"></div>
+    <div id="map"></div>
 
     <!-- Control Panel -->
     <div id="controls">
@@ -27,7 +27,7 @@
         <label for="dateSlider">Select Date</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
             <input type="range" id="dateSlider" min="0" max="0" step="1" value="0" style="flex: 1;">
-            <input type="date" id="dateInput" style="width: 140px;">
+            <input type="date" id="dateInput" style="width: 120px;" min="2025-01-05" max="2025-03-29">
         </div>
         <span id="currentDate">Loading...</span>
         <hr class="divider">
