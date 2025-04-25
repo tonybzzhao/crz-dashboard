@@ -4,8 +4,8 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia2Fpc2VyYm9ibyIsImEiOiJjbGlkbGU0anQwMG5uM2tvY
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/kaiserbobo/cm94zpp13007901qt3mttcdlq',
-    center: [-73.935242, 40.730610], // NYC center
-    zoom: 11
+    center: [-73.99171, 40.73496], // NYC center
+    zoom: 12
 });
 
 let airQualityData = [];
@@ -130,12 +130,6 @@ function addCRZOutline() {
                 });
             }
 
-            // Optionally, fit the map view to the polygon's bounding box using turf.js
-            if (typeof turf !== 'undefined') {
-                const bbox = turf.bbox(geojsonFeature);
-                console.log("Polygon bounding box:", bbox);
-                map.fitBounds(bbox, { padding: 20 });
-            }
         })
         .catch(err => console.error("Error loading CRZ rows JSON:", err));
 }
@@ -216,6 +210,8 @@ function loadAndDisplayData(selectedDate) {
                 const dateSlider = document.getElementById('dateSlider');
                 dateSlider.max = availableDates.length - 1;
                 document.getElementById('currentDate').textContent = availableDates[0];
+                // Remove tickmarks: do not set 'list' attribute, do not reference datalist
+                // dateSlider.setAttribute('list', 'tickmarks'); // (Removed for no ticks)
             }
 
             let geojson = recordsToGeoJSON(data);
@@ -406,7 +402,29 @@ map.on('load', function () {
             const dateSlider = document.getElementById('dateSlider');
             dateSlider.max = availableDates.length - 1;
             document.getElementById('currentDate').textContent = availableDates[0];
+
+            // Disable map interactions
+            map.scrollZoom.disable();
+            map.dragPan.disable();
+            map.doubleClickZoom.disable();
+
             loadAndDisplayData(availableDates[0]);
+            // If AQI data is loaded, update meters for the initial date
+            if (isAQILoaded) {
+                updateAQIMeters(availableDates[0]);
+            }
         })
         .catch(err => console.error("Error initializing dates:", err));
+});
+
+// Add event listener for dateInput box
+document.getElementById('dateInput').addEventListener('change', function () {
+    const selectedDate = this.value;
+    const index = availableDates.indexOf(selectedDate);
+    if (index !== -1) {
+        document.getElementById('dateSlider').value = index;
+        document.getElementById('currentDate').textContent = selectedDate;
+        loadAndDisplayData(selectedDate);
+        updateAQIMeters(selectedDate);
+    }
 });
