@@ -17,6 +17,8 @@ body {
   top: 10px;
   left: 10px;
   width: 250px;
+  max-height: calc(100vh - 20px); /* fit within viewport */
+  overflow-y: auto;               /* scroll only if needed */
   background: white;
   padding: 15px;
   z-index: 2;
@@ -90,10 +92,38 @@ body {
   transition: background-color 0.3s ease;
 }
 
+#aqiLegendWrapper {
+  margin-top: 10px;
+  position: relative;
+}
+#aqiLegend {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.aqi-legend-entry {
+  padding: 4px 6px;
+  margin: 2px 0;
+  color: #000;
+}
+/* Make legend text white for darker backgrounds */
+.aqi-legend-entry[style*="#ff0000"],   /* Unhealthy */
+.aqi-legend-entry[style*="#8f3f97"],   /* Very Unhealthy */
+.aqi-legend-entry[style*="#7e0023"] {  /* Hazardous */
+  color: white;
+}
+
 /* Increase popup container size */
 .mapboxgl-popup-content {
   width: 230px !important;
   height: 100% !important;
   padding: 10px;
+  font-family: 'Roboto Mono', monospace;
+}
+/* Ensure font for AQI legend toggle button */
+#toggleAQILegend {
   font-family: 'Roboto Mono', monospace;
 }

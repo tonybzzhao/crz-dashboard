@@ -12,18 +12,18 @@ let airQualityData = [];
 let isAQILoaded = false;
 
 fetch('data/air-quality.json')
-  .then(response => response.json())
-  .then(data => {
-    airQualityData = data;
-    isAQILoaded = true;
+    .then(response => response.json())
+    .then(data => {
+        airQualityData = data;
+        isAQILoaded = true;
 
-    // If date is already set, update meters now
-    const selectedDate = document.getElementById('currentDate').textContent;
-    if (selectedDate && availableDates.includes(selectedDate)) {
-      updateAQIMeters(selectedDate);
-    }
-  })
-  .catch(err => console.error("Error loading air quality JSON:", err));
+        // If date is already set, update meters now
+        const selectedDate = document.getElementById('currentDate').textContent;
+        if (selectedDate && availableDates.includes(selectedDate)) {
+            updateAQIMeters(selectedDate);
+        }
+    })
+    .catch(err => console.error("Error loading air quality JSON:", err));
 
 function getAQIColor(aqi) {
     if (aqi <= 50) return '#00e400';       // Good
@@ -112,7 +112,7 @@ function addCRZOutline() {
                     source: 'crzZone',
                     layout: {},
                     paint: {
-                        'fill-color': '#FCCC0A',
+                        'fill-color': '#FFA500',
                         'fill-opacity': 0.2
                     }
                 });
@@ -124,10 +124,37 @@ function addCRZOutline() {
                     source: 'crzZone',
                     layout: {},
                     paint: {
-                        'line-color': '#FCCC0A',
-                        'line-width': 3
+                        'line-color': '#CC8400',
+                        'line-width': 3,
+                        'line-opacity': 1
                     }
                 });
+
+                // Compute centroid and add label
+                if (typeof turf !== 'undefined') {
+                    const crzLabelPoint = turf.centroid(geojsonFeature);
+                    map.addSource('crzLabel', {
+                        type: 'geojson',
+                        data: crzLabelPoint
+                    });
+
+                    map.addLayer({
+                        id: 'crzLabelLayer',
+                        type: 'symbol',
+                        source: 'crzLabel',
+                        layout: {
+                            'text-field': 'CONGESTION\nRELIEF\nZONE',
+                            'text-font': ['Roboto Mono Bold'],
+                            'text-size': 20,
+                            'text-anchor': 'center',
+                            'text-justify': 'center'
+                        },
+                        paint: {
+                            'text-color': '#CC8400',
+                            'text-opacity': 1
+                        }
+                    });
+                }
             }
 
         })
@@ -140,6 +167,7 @@ map.on('load', function () {
 
     // (Your other initialization code can follow here)
 });
+
 
 // Lookup table for Detection Group coordinates
 const detectionGroupCoordinates = {
@@ -210,6 +238,8 @@ function loadAndDisplayData(selectedDate) {
                 const dateSlider = document.getElementById('dateSlider');
                 dateSlider.max = availableDates.length - 1;
                 document.getElementById('currentDate').textContent = availableDates[0];
+                const weekday = new Date(availableDates[0]).toLocaleDateString('en-US', { weekday: 'long' });
+                document.getElementById('currentDate').textContent += ` (${weekday})`;
                 // Remove tickmarks: do not set 'list' attribute, do not reference datalist
                 // dateSlider.setAttribute('list', 'tickmarks'); // (Removed for no ticks)
             }
@@ -250,7 +280,16 @@ function loadAndDisplayData(selectedDate) {
                     source: 'crzEntries',
                     paint: {
                         'circle-radius': newRadiusExpression,
-                        'circle-color': '#2360A5',
+                        'circle-color': [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'crzEntries'],
+                            10000, '#00e400',   // Green (Low volume)
+                            30000, '#ffff00',   // Yellow
+                            50000, '#ff7e00',   // Orange
+                            70000, '#ff0000',   // Red
+                            90000, '#7e0023'    // Dark Red (High volume)
+                        ],
                         'circle-opacity': 0.7
                     }
                 });
@@ -260,7 +299,17 @@ function loadAndDisplayData(selectedDate) {
                     type: 'symbol',
                     source: 'crzEntries',
                     layout: {
-                        'text-field': ['to-string', ['get', 'crzEntries']],
+                        'text-field': [
+                            'format',
+                            [
+                                'concat',
+                                [
+                                    'to-string',
+                                    ['/', ['round', ['*', ['/', ['get', 'crzEntries'], 1000], 10]], 10]
+                                ],
+                                'k'
+                            ]
+                        ],
                         'text-size': 18,
                         'text-offset': [0, 0],
                         'text-anchor': 'center',
@@ -268,7 +317,7 @@ function loadAndDisplayData(selectedDate) {
                     },
                     paint: {
                         'text-color': '#ffffff',
-                        'text-halo-color': '#2360A5',
+                        'text-halo-color': '#000000',
                         'text-halo-width': 1,
                     }
                 });
@@ -387,6 +436,8 @@ document.getElementById('dateSlider').addEventListener('input', function () {
     const index = parseInt(this.value, 10);
     const selectedDate = availableDates[index];
     document.getElementById('currentDate').textContent = selectedDate;
+    const weekday = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+    document.getElementById('currentDate').textContent += ` (${weekday})`;
     loadAndDisplayData(selectedDate);
     updateAQIMeters(selectedDate);
 });
@@ -401,13 +452,14 @@ map.on('load', function () {
             availableDates = Array.from(dateSet).sort();
             const dateSlider = document.getElementById('dateSlider');
             dateSlider.max = availableDates.length - 1;
-            document.getElementById('currentDate').textContent = availableDates[0];
+            const initialDate = availableDates[0];
+            const weekday = new Date(initialDate).toLocaleDateString('en-US', { weekday: 'long' });
+            document.getElementById('currentDate').textContent = `${initialDate} (${weekday})`;
 
-
-            loadAndDisplayData(availableDates[0]);
+            loadAndDisplayData(initialDate);
             // If AQI data is loaded, update meters for the initial date
             if (isAQILoaded) {
-                updateAQIMeters(availableDates[0]);
+                updateAQIMeters(initialDate);
             }
         })
         .catch(err => console.error("Error initializing dates:", err));
@@ -420,7 +472,18 @@ document.getElementById('dateInput').addEventListener('change', function () {
     if (index !== -1) {
         document.getElementById('dateSlider').value = index;
         document.getElementById('currentDate').textContent = selectedDate;
+        const weekday = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+        document.getElementById('currentDate').textContent += ` (${weekday})`;
         loadAndDisplayData(selectedDate);
         updateAQIMeters(selectedDate);
+    }
+});
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggleAQILegend');
+    const legend = document.getElementById('aqiLegend');
+    if (toggleBtn && legend) {
+        toggleBtn.addEventListener('click', () => {
+            legend.style.display = legend.style.display === 'none' ? 'block' : 'none';
+        });
     }
 });

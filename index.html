@@ -27,7 +27,7 @@
         <label for="dateSlider">Select Date</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
             <input type="range" id="dateSlider" min="0" max="0" step="1" value="0" style="flex: 1;">
-            <input type="date" id="dateInput" style="width: 120px;" min="2025-01-05" max="2025-03-29">
+            <input type="date" id="dateInput" style="width: 120px;" min="2025-01-05" max="2025-04-05">
         </div>
         <span id="currentDate">Loading...</span>
         <hr class="divider">
@@ -37,6 +37,17 @@
             <div class="aqi-meter" id="pm25Meter"></div>
             <div class="aqi-meter" id="no2Meter"></div>
             <div class="aqi-meter" id="o3Meter"></div>
+            <div id="aqiLegendWrapper">
+                <button id="toggleAQILegend">Legend</button>
+                <div id="aqiLegend" style="display: none;">
+                  <div class="aqi-legend-entry" style="background:#00e400;">Good (0–50)</div>
+                  <div class="aqi-legend-entry" style="background:#ffff00;">Moderate (51–100)</div>
+                  <div class="aqi-legend-entry" style="background:#ff7e00;">Unhealthy for Sensitive Groups (101–150)</div>
+                  <div class="aqi-legend-entry" style="background:#ff0000;">Unhealthy (151–200)</div>
+                  <div class="aqi-legend-entry" style="background:#8f3f97;">Very Unhealthy (201–300)</div>
+                  <div class="aqi-legend-entry" style="background:#7e0023;">Hazardous (301+)</div>
+                </div>
+              </div>
         </div>
     </div>
 
@@ -45,6 +56,7 @@
     </button>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
