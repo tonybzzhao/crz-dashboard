@@ -17,13 +17,15 @@ body {
   top: 10px;
   left: 10px;
   width: 250px;
-  max-height: calc(100vh - 20px); /* fit within viewport */
-  overflow-y: auto;               /* scroll only if needed */
+  max-height: calc(100vh - 20px);
+  /* fit within viewport */
+  overflow-y: auto;
+  /* scroll only if needed */
   background: white;
   padding: 15px;
   z-index: 2;
   border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease-in-out;
 }
 
@@ -34,18 +36,19 @@ body {
 .panel-toggle {
   position: absolute;
   top: 10px;
-  left: calc(25px + 250px + 25px); /* panel left + panel width + margin */
+  left: calc(25px + 250px + 25px);
+  /* panel left + panel width + margin */
   z-index: 3;
   background: white;
   border: none;
   border-radius: 3px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   padding: 4px 4px;
   cursor: pointer;
   transition: left 0.3s ease-in-out;
 }
 
-#controls.hidden + .panel-toggle {
+#controls.hidden+.panel-toggle {
   left: 10px;
 }
 
@@ -66,8 +69,10 @@ body {
 .divider {
   border: 0;
   height: 1.5px;
-  background: #ccc;   /* Adjust color as needed */
-  margin: 20px 0;     /* Adjust spacing */
+  background: #ccc;
+  /* Adjust color as needed */
+  margin: 20px 0;
+  /* Adjust spacing */
 }
 
 #dateSlider {
@@ -96,23 +101,29 @@ body {
   margin-top: 10px;
   position: relative;
 }
+
 #aqiLegend {
   background: #fff;
   border: 1px solid #ccc;
   padding: 10px;
   margin-top: 5px;
   font-size: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
+
 .aqi-legend-entry {
   padding: 4px 6px;
   margin: 2px 0;
   color: #000;
 }
+
 /* Make legend text white for darker backgrounds */
-.aqi-legend-entry[style*="#ff0000"],   /* Unhealthy */
-.aqi-legend-entry[style*="#8f3f97"],   /* Very Unhealthy */
-.aqi-legend-entry[style*="#7e0023"] {  /* Hazardous */
+.aqi-legend-entry[style*="#ff0000"],
+/* Unhealthy */
+.aqi-legend-entry[style*="#8f3f97"],
+/* Very Unhealthy */
+.aqi-legend-entry[style*="#7e0023"] {
+  /* Hazardous */
   color: white;
 }
 
@@ -123,6 +134,7 @@ body {
   padding: 10px;
   font-family: 'Roboto Mono', monospace;
 }
+
 /* Ensure font for AQI legend toggle button */
 #toggleAQILegend {
   font-family: 'Roboto Mono', monospace;

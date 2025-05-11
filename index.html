@@ -21,8 +21,10 @@
     <!-- Control Panel -->
     <div id="controls">
         <h1>NYC Congestion Pricing Dashboard</h1>
-        <p>This dashboard visualizes NYC's congestion pricing program. Use the control to see daily
-            vehicle entries and air quality data. Click on each detection group to see compositions of vehicle entries.</p>
+        <p>This interactive dashboard lets you explore New York City's Congestion Pricing Program launched on January 5,
+            2025. Analyze daily vehicle entries, examine air quality trends (PM2.5, NO₂, O₃), and click on entry points
+            to view vehicle composition. Use the date controls to investigate specific days and assess emerging
+            patterns.</p>
         <hr class="divider">
         <label for="dateSlider">Select Date</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
@@ -40,14 +42,15 @@
             <div id="aqiLegendWrapper">
                 <button id="toggleAQILegend">Legend</button>
                 <div id="aqiLegend" style="display: none;">
-                  <div class="aqi-legend-entry" style="background:#00e400;">Good (0–50)</div>
-                  <div class="aqi-legend-entry" style="background:#ffff00;">Moderate (51–100)</div>
-                  <div class="aqi-legend-entry" style="background:#ff7e00;">Unhealthy for Sensitive Groups (101–150)</div>
-                  <div class="aqi-legend-entry" style="background:#ff0000;">Unhealthy (151–200)</div>
-                  <div class="aqi-legend-entry" style="background:#8f3f97;">Very Unhealthy (201–300)</div>
-                  <div class="aqi-legend-entry" style="background:#7e0023;">Hazardous (301+)</div>
+                    <div class="aqi-legend-entry" style="background:#00e400;">Good (0–50)</div>
+                    <div class="aqi-legend-entry" style="background:#ffff00;">Moderate (51–100)</div>
+                    <div class="aqi-legend-entry" style="background:#ff7e00;">Unhealthy for Sensitive Groups (101–150)
+                    </div>
+                    <div class="aqi-legend-entry" style="background:#ff0000;">Unhealthy (151–200)</div>
+                    <div class="aqi-legend-entry" style="background:#8f3f97;">Very Unhealthy (201–300)</div>
+                    <div class="aqi-legend-entry" style="background:#7e0023;">Hazardous (301+)</div>
                 </div>
-              </div>
+            </div>
         </div>
     </div>
 

@@ -5,7 +5,14 @@ const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/kaiserbobo/cm94zpp13007901qt3mttcdlq',
     center: [-73.99171, 40.73496], // NYC center
-    zoom: 12
+    zoom: 12,
+    dragPan: false,
+    scrollZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    dragRotate: false,
+    touchZoomRotate: false,
+    keyboard: false
 });
 
 let airQualityData = [];
@@ -171,18 +178,18 @@ map.on('load', function () {
 
 // Lookup table for Detection Group coordinates
 const detectionGroupCoordinates = {
-    "Brooklyn Bridge": [-73.9969, 40.7061],
-    "East 60th St": [-73.9661, 40.7619],
-    "FDR Drive at 60th St": [-73.95866, 40.75870],
+    "Brooklyn Bridge": [-74.00045, 40.70741],
+    "East 60th St": [-73.97256, 40.76489],
+    "FDR Drive at 60th St": [-73.96026, 40.75940],
     "Holland Tunnel": [-74.01104, 40.72600],
     "Hugh L. Carey Tunnel": [-74.01558, 40.70188],
     "Lincoln Tunnel": [-74.00289, 40.75989],
-    "Manhattan Bridge": [-73.9905, 40.7070],
-    "Queens Midtown Tunnel": [-73.966951, 40.74736],
-    "Queensboro Bridge": [-73.95544, 40.75729],
+    "Manhattan Bridge": [-73.99178, 40.70966],
+    "Queens Midtown Tunnel": [-73.96805, 40.74773],
+    "Queensboro Bridge": [-73.95430, 40.75680],
     "West 60th St": [-73.98212, 40.76892],
     "West Side Highway at 60th St": [-73.99302, 40.77344],
-    "Williamsburg Bridge": [-73.972933, 40.71381],
+    "Williamsburg Bridge": [-73.97649, 40.71491],
 };
 
 // Global arrays for available dates and composition data
@@ -313,7 +320,8 @@ function loadAndDisplayData(selectedDate) {
                         'text-size': 18,
                         'text-offset': [0, 0],
                         'text-anchor': 'center',
-                        'text-font': ['Roboto Mono Bold', 'Arial Unicode MS Regular']
+                        'text-font': ['Roboto Mono Bold', 'Arial Unicode MS Regular'],
+                        'text-allow-overlap': true
                     },
                     paint: {
                         'text-color': '#ffffff',
